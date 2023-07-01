@@ -1,0 +1,6 @@
+# Editor
+.idea
+
+# Temp files
+.DS_Store
+._.*

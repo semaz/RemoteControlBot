@@ -1,0 +1,162 @@
+{
+  "BTTPresetCreatorNotes" : "",
+  "BTTPresetInfoURL" : "",
+  "BTTPresetName" : "RemoteControlBot",
+  "BTTPresetColor" : "255.000000, 147.416814, 0.000000, 255.000000",
+  "BTTPresetUUID" : "739400F9-DFC0-449A-BFDA-B6A7F81DB664",
+  "BTTPresetContent" : [
+    {
+      "BTTAppBundleIdentifier" : "com.apple.finder",
+      "BTTAppName" : "Finder",
+      "BTTAppAutoInvertIcon" : 1,
+      "BTTTriggers" : [
+
+      ]
+    },
+    {
+      "BTTAppBundleIdentifier" : "BT.G",
+      "BTTAppName" : "Global",
+      "BTTAppAutoInvertIcon" : 1,
+      "BTTAppSpecificSettings" : {
+        "BTTDisableGlobalTriggers" : false
+      },
+      "BTTTriggers" : [
+        {
+          "BTTLastUpdatedAt" : 1688200778.5544569,
+          "BTTTriggerType" : 643,
+          "BTTTriggerTypeDescription" : "Named Trigger: rmt_sleep",
+          "BTTTriggerClass" : "BTTTriggerTypeOtherTriggers",
+          "BTTPredefinedActionType" : 14,
+          "BTTPredefinedActionName" : "Sleep Computer",
+          "BTTTriggerName" : "rmt_sleep",
+          "BTTUUID" : "7B93B820-0A9C-465B-9C26-A0A78B21B06B",
+          "BTTEnabled" : 1,
+          "BTTEnabled2" : 1,
+          "BTTOrder" : 9
+        },
+        {
+          "BTTLastUpdatedAt" : 1688200701.9211679,
+          "BTTTriggerType" : 643,
+          "BTTTriggerTypeDescription" : "Named Trigger: rmt_volume_down",
+          "BTTTriggerClass" : "BTTTriggerTypeOtherTriggers",
+          "BTTPredefinedActionType" : 25,
+          "BTTPredefinedActionName" : "Volume Down",
+          "BTTTriggerName" : "rmt_volume_down",
+          "BTTUUID" : "8A3E21D1-DD3A-4877-9090-FD9463CD426A",
+          "BTTEnabled" : 1,
+          "BTTEnabled2" : 1,
+          "BTTOrder" : 5
+        },
+        {
+          "BTTLastUpdatedAt" : 1688200778.554466,
+          "BTTTriggerType" : 643,
+          "BTTTriggerTypeDescription" : "Named Trigger: rmt_display_off",
+          "BTTTriggerClass" : "BTTTriggerTypeOtherTriggers",
+          "BTTPredefinedActionType" : 13,
+          "BTTPredefinedActionName" : "Sleep Display",
+          "BTTTriggerName" : "rmt_display_off",
+          "BTTUUID" : "2B2AFEE6-9B34-40F4-9460-D98BAB57759F",
+          "BTTEnabled" : 1,
+          "BTTEnabled2" : 1,
+          "BTTOrder" : 8
+        },
+        {
+          "BTTLastUpdatedAt" : 1688200701.92116,
+          "BTTTriggerType" : 643,
+          "BTTTriggerTypeDescription" : "Named Trigger: rmt_brightness_up",
+          "BTTTriggerClass" : "BTTTriggerTypeOtherTriggers",
+          "BTTPredefinedActionType" : 28,
+          "BTTPredefinedActionName" : "Brightness Up",
+          "BTTTriggerName" : "rmt_brightness_up",
+          "BTTUUID" : "33285E44-AC08-49C6-9F93-CDFF4892F2BC",
+          "BTTEnabled" : 1,
+          "BTTEnabled2" : 1,
+          "BTTOrder" : 6
+        },
+        {
+          "BTTLastUpdatedAt" : 1688200701.9211731,
+          "BTTTriggerType" : 643,
+          "BTTTriggerTypeDescription" : "Named Trigger: rmt_play_pause",
+          "BTTTriggerClass" : "BTTTriggerTypeOtherTriggers",
+          "BTTPredefinedActionType" : 23,
+          "BTTPredefinedActionName" : "Play\/Pause",
+          "BTTTriggerName" : "rmt_play_pause",
+          "BTTUUID" : "727DF6A3-BBB5-4689-97BC-B24DA387C379",
+          "BTTEnabled" : 1,
+          "BTTEnabled2" : 1,
+          "BTTGestureNotes" : "Named Trigger: play_pause"
+        },
+        {
+          "BTTLastUpdatedAt" : 1688200701.9211512,
+          "BTTTriggerType" : 643,
+          "BTTTriggerTypeDescription" : "Named Trigger: rmt_prev_song",
+          "BTTTriggerClass" : "BTTTriggerTypeOtherTriggers",
+          "BTTPredefinedActionType" : 26,
+          "BTTPredefinedActionName" : "Previous",
+          "BTTTriggerName" : "rmt_prev_song",
+          "BTTUUID" : "95C4BC0F-685F-4864-984E-724D7DD9E741",
+          "BTTEnabled" : 1,
+          "BTTEnabled2" : 1,
+          "BTTOrder" : 1,
+          "BTTGestureNotes" : "Named Trigger: prev_song"
+        },
+        {
+          "BTTLastUpdatedAt" : 1688200701.9211349,
+          "BTTTriggerType" : 643,
+          "BTTTriggerTypeDescription" : "Named Trigger: rmt_next_song",
+          "BTTTriggerClass" : "BTTTriggerTypeOtherTriggers",
+          "BTTPredefinedActionType" : 27,
+          "BTTPredefinedActionName" : "Next",
+          "BTTTriggerName" : "rmt_next_song",
+          "BTTUUID" : "9605AF2C-8133-4957-A327-FD2E35A6B1A1",
+          "BTTEnabled" : 1,
+          "BTTEnabled2" : 1,
+          "BTTOrder" : 2,
+          "BTTGestureNotes" : "Named Trigger: next_song"
+        },
+        {
+          "BTTLastUpdatedAt" : 1688200701.9211168,
+          "BTTTriggerType" : 643,
+          "BTTTriggerTypeDescription" : "Named Trigger: rmt_volume_up",
+          "BTTTriggerClass" : "BTTTriggerTypeOtherTriggers",
+          "BTTPredefinedActionType" : 24,
+          "BTTPredefinedActionName" : "Volume Up",
+          "BTTTriggerName" : "rmt_volume_up",
+          "BTTUUID" : "9294DFD6-4E9B-434C-BF08-866B4215969C",
+          "BTTEnabled" : 1,
+          "BTTEnabled2" : 1,
+          "BTTOrder" : 4
+        },
+        {
+          "BTTLastUpdatedAt" : 1688200701.921144,
+          "BTTTriggerType" : 643,
+          "BTTTriggerTypeDescription" : "Named Trigger: rmt_mute",
+          "BTTTriggerClass" : "BTTTriggerTypeOtherTriggers",
+          "BTTPredefinedActionType" : 22,
+          "BTTPredefinedActionName" : "Mute",
+          "BTTTriggerName" : "rmt_mute",
+          "BTTUUID" : "20BF4C53-2F4B-484D-AD66-EA74FFE3490E",
+          "BTTEnabled" : 1,
+          "BTTEnabled2" : 1,
+          "BTTOrder" : 3
+        },
+        {
+          "BTTLastUpdatedAt" : 1688200701.9211478,
+          "BTTTriggerType" : 643,
+          "BTTTriggerTypeDescription" : "Named Trigger: rmt_brightness_down",
+          "BTTTriggerClass" : "BTTTriggerTypeOtherTriggers",
+          "BTTPredefinedActionType" : 29,
+          "BTTPredefinedActionName" : "Brightness Down",
+          "BTTTriggerName" : "rmt_brightness_down",
+          "BTTUUID" : "A13275B7-C58B-4C5E-8846-5CEE5889048C",
+          "BTTEnabled" : 1,
+          "BTTEnabled2" : 1,
+          "BTTOrder" : 7
+        }
+      ]
+    }
+  ],
+  "BTTPresetSnapAreas" : [
+
+  ]
+}
