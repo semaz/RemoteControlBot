@@ -1,4 +1,18 @@
-### MacOS / Windows remote control bot ###
+### MacOS / Windows remote control Telegram bot ###
+
+List of controls:
+- Play previous song
+- Play/Pause
+- Play next song
+- Volume down
+- Mute
+- Volume up
+- Disable screen
+- Mac: Display brightness down, Win: Set brightness to 10%
+- Mac: Display brightness up, Win: Set brightness to 100%
+- Mac: Sleep, Win: Hibernate
+- Reboot
+- Shutdown
 
 For Windows:
 1. Install [Python](https://www.python.org/downloads/)
@@ -7,7 +21,7 @@ For Windows:
 4. Clone this repository to your user dir `C:\Users\<username>\RemoteControlBot`
 5. Run cmd (Win+R) and enter `shell:common startup`. In the folder that opens, create a `RemoteControlBot.bat` file with content:
 ```shell script
-powershell pythonw {DIR}\win.py '{TOKEN}}' '{CHAT_ID}}'
+powershell pythonw {DIR}\run.py '{TOKEN}}' '{CHAT_ID}}'
 ```
 6. If you are using Windows 10, then you need to start the powershell in administrator mode and run the command
    `Set-ExecutionPolicy unrestricted`
@@ -25,7 +39,7 @@ For MacOS:
 7. Copy & paste script into the window:
 ```shell
 source .zprofile
-python3 ~/RemoteControlBot/mac.py '{TOKEN}}' '{CHAT_ID}}''{TOKEN}}' '{CHAT_ID}}'
+python3 ~/RemoteControlBot/run.py '{TOKEN}}' '{CHAT_ID}}''{TOKEN}}' '{CHAT_ID}}'
 ```
 8. Save somewhere (for example in your HOME) as RemoteControlBot.app
 9. Go to `System Preferences -> GeneralGeneral -> Login items` and add this app
