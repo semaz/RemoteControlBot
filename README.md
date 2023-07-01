@@ -1,6 +1,6 @@
 ### MacOS / Windows remote control Telegram bot ###
 
-List of controls:
+## List of controls:
 - Play previous song
 - Play/Pause
 - Play next song
@@ -14,7 +14,7 @@ List of controls:
 - Reboot
 - Shutdown
 
-For Windows:
+## Windows install steps:
 1. Install [Python](https://www.python.org/downloads/)
 2. Start powershell as administrator and run `py -m pip install telepot psutil`
 3. Create your [Telegram bot](https://core.telegram.org/bots)
@@ -28,7 +28,7 @@ powershell pythonw {DIR}\run.py '{TOKEN}}' '{CHAT_ID}}'
 7. Double click `RemoteControlBot.bat` to start script
 8. Send message `/start` to your bot
 
-For MacOS:
+## MacOS install steps:
 1. Install Python and BetterTouchTool `brew install python && brew install --cask bettertouchtool && brew install python && pip3 install telepot`
 2. Clone this repository to your user dir `~/RemoteControlBot`
 3. Open BetterTouchTool and import preset "scripts/mac/RemoteControlBot.bttpreset"
