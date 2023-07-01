@@ -1,25 +1,37 @@
-def remote_bot():
-    import sys, telepot, time, os
+def remote_bot(i18):
+    import sys, telepot, time, os, subprocess
     from telepot.namedtuple import ReplyKeyboardMarkup
 
-    cmd_play_prev = '⏮ Назад'
-    cmd_play_pause = '⏯ Играть/Пауза'
-    cmd_play_next = '⏭ Далее'
-    cmd_volume_down = '⏭ Далее'
-    cmd_volume_mute = '🔈 Звук'
-    cmd_volume_up = '🔼 Громче'
-    cmd_screen_off = '🖥 Выключить экран'
-    cmd_brightness_down = '🔅 Яркость -'
-    cmd_brightness_up = '🔅 Яркость +'
-    cmd_sleep = '🟡 Сон'
-    cmd_reboot = '🟠 Перезагрузка'
-    cmd_shutdown = '🔴 Выключение'
+    # Get current system language
+    lang_request = subprocess.check_output(['osascript', '-e', 'user locale of (get system info)'], text = True)
 
+    if lang_request.startswith('ru'):
+        lang = 'ru'
+    else:
+        lang = 'en'
+
+    # list of commands
+    cmd_play_prev = '⏮ ' + i18[lang]['play_prev']
+    cmd_play_pause = '⏯ ' + i18[lang]['play_pause']
+    cmd_play_next = '⏭ ' + i18[lang]['play_next']
+    cmd_volume_down = '🔽 ' + i18[lang]['volume_down']
+    cmd_volume_mute = '🔈 ' + i18[lang]['volume_mute']
+    cmd_volume_up = '🔼 ' + i18[lang]['volume_up']
+    cmd_screen_off = '🖥 ' + i18[lang]['screen_off']
+    cmd_brightness_down = '🔅 ' + i18[lang]['brightness'] + ' -'
+    cmd_brightness_up = '🔅 ' + i18[lang]['brightness'] + ' +'
+    cmd_sleep = '🟡 ' + i18[lang]['sleep']
+    cmd_reboot = '🟠 ' + i18[lang]['reboot']
+    cmd_shutdown = '🔴 ' + i18[lang]['shutdown']
+
+    # bot logic
     def handle(msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
 
         if (content_type == 'text' and chat_id and msg['chat']['id'] == chat_id):
             command = msg['text']
+
+            # telegram keyboard markup
             markup = ReplyKeyboardMarkup(keyboard=[
                 [cmd_play_prev, cmd_play_pause, cmd_play_next],
                 [cmd_volume_down, cmd_volume_mute, cmd_volume_up],

@@ -1,26 +1,33 @@
-def remote_bot():
+def remote_bot(i18):
     import sys, telepot, time, subprocess, os, psutil
     from telepot.namedtuple import ReplyKeyboardMarkup
 
-    cmd_play_prev = '⏮ Назад'
-    cmd_play_pause = '⏯ Играть/Пауза'
-    cmd_play_next = '⏭ Далее'
-    cmd_volume_down = '⏭ Далее'
-    cmd_volume_mute = '🔈 Звук'
-    cmd_volume_up = '🔼 Громче'
-    cmd_screen_off = '🖥 Выключить экран'
-    cmd_brightness_10 = '🔅 Яркость 10%'
-    cmd_brightness_100 = '🔅 Яркость 100%'
-    cmd_hibernate = '🟡 Гибернация'
-    cmd_reboot = '🟠 Перезагрузка'
-    cmd_shutdown = '🔴 Выключение'
+    # TODO: Get current system language
+    lang = 'en'
 
+    # list of commands
+    cmd_play_prev = '⏮ ' + i18[lang]['play_prev']
+    cmd_play_pause = '⏯ ' + i18[lang]['play_pause']
+    cmd_play_next = '⏭ ' + i18[lang]['play_next']
+    cmd_volume_down = '🔽 ' + i18[lang]['volume_down']
+    cmd_volume_mute = '🔈 ' + i18[lang]['volume_mute']
+    cmd_volume_up = '🔼 ' + i18[lang]['volume_up']
+    cmd_screen_off = '🖥 ' + i18[lang]['screen_off']
+    cmd_brightness_10 = '🔅 ' + i18[lang]['brightness'] + ' 10'
+    cmd_brightness_100 = '🔅 ' + i18[lang]['brightness'] + ' 100'
+    cmd_hibernate = '🟡 ' + i18[lang]['hibernate']
+    cmd_reboot = '🟠 ' + i18[lang]['reboot']
+    cmd_shutdown = '🔴 ' + i18[lang]['shutdown']
+
+    # bot logic
     def handle(msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
 
         if (content_type == 'text' and chat_id and msg['chat']['id'] == chat_id):
             cmd_repeat = 1
             command = msg['text']
+
+            # telegram keyboard markup
             markup = ReplyKeyboardMarkup(keyboard=[
                 [cmd_play_prev, cmd_play_pause, cmd_play_next],
                 [cmd_volume_down, cmd_volume_mute, cmd_volume_up],
