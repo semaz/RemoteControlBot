@@ -2,8 +2,14 @@ def remote_bot(i18):
     import sys, telepot, time, subprocess, os, psutil
     from telepot.namedtuple import ReplyKeyboardMarkup
 
-    # TODO: Get current system language
-    lang = 'en'
+    # Get current system language
+    p = subprocess.run(["powershell.exe", "-NoProfile", "Get-UICulture|select -ExpandProperty Name"], capture_output=True, text=True)
+    lang_request = p.stdout
+
+    if lang_request.startswith('ru'):
+        lang = 'ru'
+    else:
+        lang = 'en'
 
     # list of commands
     cmd_play_prev = '⏮ ' + i18[lang]['play_prev']
@@ -96,8 +102,8 @@ def remote_bot(i18):
     bot = telepot.Bot(TOKEN)
 
     path = os.path.dirname(os.path.abspath(__file__))
-    screen_off = 'powershell ' + path + '\screen_off.ps1'
-    keypress = 'powershell ' + path + '\keypress.ps1 -KeyCode %s'
+    screen_off = 'powershell ' + path + '\scripts\win\screen_off.ps1'
+    keypress = 'powershell ' + path + '\scripts\win\keypress.ps1 -KeyCode %s'
     brightness = 'powershell (Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(0,%d)'
 
     bot.message_loop(handle)
