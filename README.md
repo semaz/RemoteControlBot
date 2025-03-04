@@ -39,7 +39,7 @@
 8. Copy & paste script into the window:
    ```shell
    source .zprofile
-   python3 ~/RemoteControlBot/run.py '{TOKEN}}' '{CHAT_ID}}''{TOKEN}}' '{CHAT_ID}}'
+   python3 ~/RemoteControlBot/run.py '{TOKEN}}' '{CHAT_ID}}'
    ```
 9. Save somewhere (for example in your HOME) as RemoteControlBot.app
 10. Go to `System Preferences -> GeneralGeneral -> Login items` and add this app
