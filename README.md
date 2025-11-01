@@ -29,7 +29,7 @@
 8. Send message `/start` to your bot
 
 ## MacOS install steps:
-1. Install Python and BetterTouchTool `brew install python && brew install --cask bettertouchtool && pip3 install telepot --break-system-packages`
+1. Install Python and BetterTouchTool `brew install python && brew install --cask bettertouchtool && export LANG="en_US.UTF-8" && pip3 install telepot --break-system-packages`
 2. Clone this repository to your user dir `~/RemoteControlBot`
 3. Open BetterTouchTool and import preset "scripts/mac/RemoteControlBot.bttpreset"
 4. Start Automator.app
