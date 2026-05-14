@@ -1,138 +1,119 @@
-def remote_bot(i18):
-    import sys, telepot, time, os, subprocess
-    from telepot.namedtuple import ReplyKeyboardMarkup
+import ctypes
+import logging
+import subprocess
 
-    # Get current system language
-    lang_request = subprocess.check_output(['osascript', '-e', 'user locale of (get system info)'], text = True)
+from telegram import ReplyKeyboardMarkup
 
-    if lang_request.startswith('ru'):
-        lang = 'ru'
-    else:
-        lang = 'en'
+from bot_base import make_label, run_bot
 
-    # list of commands
-    cmd_play_prev = '⏮ ' + i18[lang]['play_prev']
-    cmd_play_pause = '⏯ ' + i18[lang]['play_pause']
-    cmd_play_next = '⏭ ' + i18[lang]['play_next']
-    cmd_volume_down = '🔽 ' + i18[lang]['volume_down']
-    cmd_volume_mute = '🔈 ' + i18[lang]['volume_mute']
-    cmd_volume_up = '🔼 ' + i18[lang]['volume_up']
-    cmd_screen_off = '🖥 ' + i18[lang]['screen_off']
-    cmd_brightness_down = '🔅 ' + i18[lang]['brightness'] + ' -'
-    cmd_brightness_up = '🔅 ' + i18[lang]['brightness'] + ' +'
-    cmd_sleep = '🟡 ' + i18[lang]['sleep']
-    cmd_reboot = '🟠 ' + i18[lang]['reboot']
-    cmd_shutdown = '🔴 ' + i18[lang]['shutdown']
+logger = logging.getLogger(__name__)
 
-    # bot logic
-    def handle(msg):
-        content_type, chat_type, chat_id = telepot.glance(msg)
 
-        if (content_type == 'text' and chat_id and msg['chat']['id'] == chat_id):
-            command = msg['text']
+def remote_bot(i18, icons, token, chat_id):
+    def osascript(script):
+        result = subprocess.run(['osascript', '-e', script], capture_output=True, text=True)
+        if result.returncode != 0:
+            logger.error('osascript: %s', result.stderr.strip())
 
-            # telegram keyboard markup
-            markup = ReplyKeyboardMarkup(keyboard=[
-                [cmd_play_prev, cmd_play_pause, cmd_play_next],
-                [cmd_volume_down, cmd_volume_mute, cmd_volume_up],
-                [cmd_screen_off, cmd_brightness_down, cmd_brightness_up],
-                [cmd_sleep, cmd_reboot, cmd_shutdown],
-            ])
+    def media(action):
+        result = subprocess.run(['nowplaying-cli', action], capture_output=True, text=True)
+        if result.returncode != 0:
+            logger.error('nowplaying-cli: %s', result.stderr.strip())
 
-            if command == '/start':
-                bot.sendMessage (chat_id, str("Добро пожаловать!"), reply_markup=markup)
+    def brightness_change(delta):
+        try:
+            cg = ctypes.cdll.LoadLibrary(
+                '/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics'
+            )
+            cg.CGMainDisplayID.restype = ctypes.c_uint32
+            display_id = cg.CGMainDisplayID()
 
-            elif cmd_play_prev == command:
-                os.system('''
-                    osascript -e 'tell application "BetterTouchTool"
-                        trigger_named "rmt_next_song"
-                    end tell'
-                ''')
+            try:
+                # macOS 13+: DisplayServices заменил CoreDisplay
+                ds = ctypes.cdll.LoadLibrary(
+                    '/System/Library/PrivateFrameworks/DisplayServices.framework/DisplayServices'
+                )
+                get = ds.DisplayServicesGetBrightness
+                get.restype = ctypes.c_int
+                get.argtypes = [ctypes.c_uint32, ctypes.POINTER(ctypes.c_float)]
+                set_ = ds.DisplayServicesSetBrightness
+                set_.restype = ctypes.c_int
+                set_.argtypes = [ctypes.c_uint32, ctypes.c_float]
 
-            elif cmd_play_pause == command:
-                os.system('''
-                    osascript -e 'tell application "BetterTouchTool"
-                        trigger_named "rmt_play_pause"
-                    end tell'
-                ''')
+                current = ctypes.c_float()
+                get(display_id, ctypes.byref(current))
+                set_(display_id, ctypes.c_float(max(0.0, min(1.0, current.value + delta))))
+            except OSError:
+                # macOS 12 и старше: CoreDisplay
+                cd = ctypes.cdll.LoadLibrary(
+                    '/System/Library/PrivateFrameworks/CoreDisplay.framework/CoreDisplay'
+                )
+                get = cd.CoreDisplay_Display_GetUserBrightness
+                get.restype = ctypes.c_double
+                get.argtypes = [ctypes.c_uint32]
+                set_ = cd.CoreDisplay_Display_SetUserBrightness
+                set_.restype = None
+                set_.argtypes = [ctypes.c_uint32, ctypes.c_double]
 
-            elif cmd_play_next == command:
-                os.system('''
-                    osascript -e 'tell application "BetterTouchTool"
-                        trigger_named "rmt_prev_song"
-                    end tell'
-                ''')
+                current = get(display_id)
+                set_(display_id, max(0.0, min(1.0, current + delta)))
+        except Exception as e:
+            logger.error('brightness: %s', e)
 
-            elif cmd_volume_down == command:
-                os.system('''
-                    osascript -e 'tell application "BetterTouchTool"
-                        trigger_named "rmt_volume_down"
-                    end tell'
-                ''')
+    def volume_up():
+        osascript(
+            'set vol to (output volume of (get volume settings)) + 10\n'
+            'if vol > 100 then set vol to 100\n'
+            'set volume output volume vol'
+        )
 
-            elif cmd_volume_mute == command:
-                os.system('''
-                    osascript -e 'tell application "BetterTouchTool"
-                        trigger_named "rmt_mute"
-                    end tell'
-                ''')
+    def volume_down():
+        osascript(
+            'set vol to (output volume of (get volume settings)) - 10\n'
+            'if vol < 0 then set vol to 0\n'
+            'set volume output volume vol'
+        )
 
-            elif cmd_volume_up == command:
-                os.system('''
-                    osascript -e 'tell application "BetterTouchTool"
-                        trigger_named "rmt_volume_up"
-                    end tell'
-                ''')
+    def volume_mute():
+        osascript(
+            'set s to (get volume settings)\n'
+            'if output muted of s then\n'
+            '    set volume without output muted\n'
+            'else\n'
+            '    set volume with output muted\n'
+            'end if'
+        )
 
-            elif cmd_screen_off == command:
-                os.system('''
-                    osascript -e 'tell application "BetterTouchTool"
-                        trigger_named "rmt_display_off"
-                    end tell'
-                ''')
+    def display_off():
+        subprocess.run(['pmset', 'displaysleepnow'])
 
-            elif cmd_brightness_down == command:
-                os.system('''
-                    osascript -e 'tell application "BetterTouchTool"
-                        trigger_named "rmt_brightness_down"
-                    end tell'
-                ''')
+    lang_request = subprocess.check_output(
+        ['osascript', '-e', 'user locale of (get system info)'], text=True
+    )
+    lang = 'ru' if lang_request.startswith('ru') else 'en'
 
-            elif cmd_brightness_up == command:
-                os.system('''
-                    osascript -e 'tell application "BetterTouchTool"
-                        trigger_named "rmt_brightness_up"
-                    end tell'
-                ''')
+    label = make_label(icons, i18[lang])
 
-            elif cmd_sleep == command:
-                os.system('''
-                    osascript -e 'tell application "System Events" to sleep'
-                ''')
+    commands = {
+        label('play_prev'):         lambda: media('previous'),
+        label('play_pause'):        lambda: media('togglePlayPause'),
+        label('play_next'):         lambda: media('next'),
+        label('volume_down'):       volume_down,
+        label('volume_mute'):       volume_mute,
+        label('volume_up'):         volume_up,
+        label('screen_off'):        display_off,
+        label('brightness', ' -'):  lambda: brightness_change(-0.1),
+        label('brightness', ' +'):  lambda: brightness_change(0.1),
+        label('sleep'):             lambda: osascript('tell application "System Events" to sleep'),
+        label('reboot'):            lambda: osascript('tell application "System Events" to restart'),
+        label('shutdown'):          lambda: osascript('tell application "System Events" to shut down'),
+    }
 
-            elif cmd_reboot == command:
-                os.system('''
-                    osascript -e 'tell application "System Events" to restart'
-                ''')
+    keyboard = ReplyKeyboardMarkup([
+        [label('play_prev'),   label('play_pause'),      label('play_next')],
+        [label('volume_down'), label('volume_mute'),      label('volume_up')],
+        [label('screen_off'),  label('brightness', ' -'), label('brightness', ' +')],
+        [label('sleep'),       label('reboot'),           label('shutdown')],
+    ], resize_keyboard=True)
 
-            elif cmd_shutdown == command:
-                os.system('''
-                    osascript -e 'tell application "System Events" to shut down'
-                ''')
-
-            bot.sendMessage(chat_id, 'Команда: %s' % command, reply_markup=markup)
-
-    # get settings from command-line
-    TOKEN = sys.argv[1]
-
-    if len(sys.argv) > 2:
-        chat_id = sys.argv[2]
-    else:
-        chat_id = None
-
-    bot = telepot.Bot(TOKEN)
-
-    bot.message_loop(handle)
-
-    while 1:
-        time.sleep(20)
+    run_bot(token, chat_id, keyboard, commands)

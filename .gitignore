@@ -4,3 +4,6 @@
 # Temp files
 .DS_Store
 ._.*
+
+# AI agent
+CLAUDE.md

@@ -1,112 +1,52 @@
-def remote_bot(i18):
-    import sys, telepot, time, subprocess, os, psutil
-    from telepot.namedtuple import ReplyKeyboardMarkup
+import logging
+import os
+import subprocess
 
-    # Get current system language
-    p = subprocess.run(["powershell.exe", "-NoProfile", "Get-UICulture|select -ExpandProperty Name"], capture_output=True, text=True)
-    lang_request = p.stdout
+from telegram import ReplyKeyboardMarkup
 
-    if lang_request.startswith('ru'):
-        lang = 'ru'
-    else:
-        lang = 'en'
+from bot_base import make_label, run_bot
 
-    # list of commands
-    cmd_play_prev = '⏮ ' + i18[lang]['play_prev']
-    cmd_play_pause = '⏯ ' + i18[lang]['play_pause']
-    cmd_play_next = '⏭ ' + i18[lang]['play_next']
-    cmd_volume_down = '🔽 ' + i18[lang]['volume_down']
-    cmd_volume_mute = '🔈 ' + i18[lang]['volume_mute']
-    cmd_volume_up = '🔼 ' + i18[lang]['volume_up']
-    cmd_screen_off = '🖥 ' + i18[lang]['screen_off']
-    cmd_brightness_10 = '🔅 ' + i18[lang]['brightness'] + ' 10'
-    cmd_brightness_100 = '🔅 ' + i18[lang]['brightness'] + ' 100'
-    cmd_hibernate = '🟡 ' + i18[lang]['hibernate']
-    cmd_reboot = '🟠 ' + i18[lang]['reboot']
-    cmd_shutdown = '🔴 ' + i18[lang]['shutdown']
+logger = logging.getLogger(__name__)
 
-    # bot logic
-    def handle(msg):
-        content_type, chat_type, chat_id = telepot.glance(msg)
 
-        if (content_type == 'text' and chat_id and msg['chat']['id'] == chat_id):
-            cmd_repeat = 1
-            command = msg['text']
+def remote_bot(i18, icons, token, chat_id):
+    p = subprocess.run(
+        ["powershell.exe", "-NoProfile", "Get-UICulture|select -ExpandProperty Name"],
+        capture_output=True, text=True
+    )
+    lang = 'ru' if p.stdout.startswith('ru') else 'en'
 
-            # telegram keyboard markup
-            markup = ReplyKeyboardMarkup(keyboard=[
-                [cmd_play_prev, cmd_play_pause, cmd_play_next],
-                [cmd_volume_down, cmd_volume_mute, cmd_volume_up],
-                [cmd_screen_off, cmd_brightness_10, cmd_brightness_100],
-                [cmd_hibernate, cmd_reboot, cmd_shutdown],
-            ])
-
-            if command == '/start':
-                bot.sendMessage (chat_id, str("Добро пожаловать!"), reply_markup=markup)
-
-            elif cmd_play_prev == command:
-                cmd = keypress % '0xB0'
-
-            elif cmd_play_pause == command:
-                cmd = keypress % '0xB3'
-
-            elif cmd_play_prev == command:
-                cmd = keypress % '0xB1'
-
-            elif cmd_volume_up == command:
-                cmd = keypress % '0xAF'
-                cmd_repeat = 2
-
-            elif cmd_volume_mute == command:
-                cmd = keypress % '0xAD'
-
-            elif cmd_volume_down == command:
-                cmd = keypress % '0xAE'
-                cmd_repeat = 2
-
-            elif cmd_screen_off == command:
-                cmd = screen_off
-
-            elif cmd_brightness_10 == command:
-                cmd = brightness % 10
-
-            elif cmd_brightness_100 == command:
-                cmd = brightness % 100
-
-            elif cmd_hibernate == command:
-                cmd = 'shutdown.exe /h /f'
-
-            elif cmd_reboot == command:
-                cmd = 'shutdown /r /f'
-
-            elif cmd_shutdown == command:
-                cmd = 'shutdown /s /f /t 0'
-
-            else:
-                cmd_repeat = None
-
-            if cmd_repeat:
-                for number in range(cmd_repeat):
-                    subprocess.Popen(cmd, shell=True)
-
-            bot.sendMessage(chat_id, 'Команда: %s' % command, reply_markup=markup)
-
-    # get settings from command-line
-    TOKEN = sys.argv[1]
-
-    if len(sys.argv) > 2:
-        chat_id = sys.argv[2]
-    else:
-        chat_id = None
-
-    bot = telepot.Bot(TOKEN)
-
-    path = os.path.dirname(os.path.abspath(__file__))
-    screen_off = 'powershell ' + path + '\scripts\win\screen_off.ps1'
-    keypress = 'powershell ' + path + '\scripts\win\keypress.ps1 -KeyCode %s'
+    scripts_path = os.path.dirname(os.path.abspath(__file__))
+    screen_off = 'powershell ' + scripts_path + r'\scripts\win\screen_off.ps1'
+    keypress   = 'powershell ' + scripts_path + r'\scripts\win\keypress.ps1 -KeyCode %s'
     brightness = 'powershell (Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(0,%d)'
 
-    bot.message_loop(handle)
+    def run(cmd, repeat=1):
+        for _ in range(repeat):
+            subprocess.Popen(cmd, shell=True)
 
-    while 1:
-        time.sleep(20)
+    label = make_label(icons, i18[lang])
+
+    commands = {
+        label('play_prev'):          lambda: run(keypress % '0xB1'),
+        label('play_pause'):         lambda: run(keypress % '0xB3'),
+        label('play_next'):          lambda: run(keypress % '0xB0'),
+        label('volume_down'):        lambda: run(keypress % '0xAE', 2),
+        label('volume_mute'):        lambda: run(keypress % '0xAD'),
+        label('volume_up'):          lambda: run(keypress % '0xAF', 2),
+        label('screen_off'):         lambda: run(screen_off),
+        label('brightness', ' 10'):  lambda: run(brightness % 10),
+        label('brightness', ' 100'): lambda: run(brightness % 100),
+        label('hibernate'):          lambda: run('shutdown.exe /h /f'),
+        label('reboot'):             lambda: run('shutdown /r /f'),
+        label('shutdown'):           lambda: run('shutdown /s /f /t 0'),
+    }
+
+    keyboard = ReplyKeyboardMarkup([
+        [label('play_prev'),   label('play_pause'),       label('play_next')],
+        [label('volume_down'), label('volume_mute'),       label('volume_up')],
+        [label('screen_off'),  label('brightness', ' 10'), label('brightness', ' 100')],
+        [label('hibernate'),   label('reboot'),            label('shutdown')],
+    ], resize_keyboard=True)
+
+    run_bot(token, chat_id, keyboard, commands)
